@@ -103,33 +103,52 @@ class ProducerConsumerList {
 class Producer extends Thread {
 //	ProducerConsumer pcBuffer = ProducerConsumer.getInstance();
 	ProducerConsumerList pcBuffer = ProducerConsumerList.getInstance();
-	int nJob;
+	volatile int nJob;
+	volatile int nJobCompleted;
 	
 	public Producer(String name) {
 		this.setName(name);
-		nJob = 0;
+		nJob = -1;
+		nJobCompleted = 0;
 	}
 	public Producer(String name, int nJob) {
 		this.setName(name);
 		this.nJob = nJob;
+		nJobCompleted = 0;
 	}
 	
+	public void setJobCount(int nJob) {
+		this.nJob = nJob;
+		nJobCompleted = 0;
+	}
+	public boolean isWorking() {
+		return (nJob == 0 ? true : (nJobCompleted < nJob));
+	}
+	
+	// "nJob = 0" is interpreted as to produce infinite jobs
 	public void run() {
-		if (nJob > 0) {
-			for(int i=1 ; i<=nJob ; i++)
-				generateAndAddItem();
+		while(!Thread.currentThread().isInterrupted()){
+			// If current work is completed, wait till next set of jobs assigned or interrupted
+			if(nJob > 0 && nJobCompleted >= nJob) continue;
+			
+			// Do the work
+			if (nJob > 0) {
+				for(int i=1 ; i<=nJob ; i++)
+					generateAndAddItem();
+			}
+			else if(nJob == 0){
+				while(true)
+					generateAndAddItem();
+			}
 		}
-		else {
-			while(true)
-				generateAndAddItem();
-		}
-		
+		System.out.println("Producer-" + this.getName() + " stopped");
 	}
 	
 	void generateAndAddItem() {
 		int item;
 		item = nextItem();
 		pcBuffer.addItem(item);
+		nJobCompleted++;
 		System.out.println("Producer-" + this.getName() + " added item#" + item + " to queue");
 	}
 	
@@ -159,7 +178,7 @@ class Consumer extends Thread {
 			}
 		}
 		catch(InterruptedException eIE) {
-			System.out.println("Consumer-" + this.getName() + " interrupted");
+			System.out.print("Terminated " + this.getName() + "! ");
 		}
 		finally {
 			System.out.println("Consumer-" + this.getName() + " stopped");

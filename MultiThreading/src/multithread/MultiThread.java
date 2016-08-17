@@ -23,22 +23,22 @@ public class MultiThread {
 	}
 	
 	void runProducerConsumer() {
-		int bufSize, nProcuders, nConsumers;
+		int bufSize, nProducers, nConsumers;
 		Thread[] producer, consumer;
 		ProducerConsumerArray pcBuf = ProducerConsumerArray.getInstance();
 		
 		System.out.print("Enter buffer size: ");
 		bufSize = getInputInt();
 		System.out.print("Enter number of Producers: ");
-		nProcuders = getInputInt();
+		nProducers = getInputInt();
 		System.out.print("Enter number of Consumers: ");
 		nConsumers = getInputInt();
 		
 		pcBuf.createBuffer(bufSize);
-		producer = new Thread[nProcuders];
+		producer = new Thread[nProducers];
 		consumer = new Thread[nConsumers];
 		// Creating Producers
-		for(int i=0 ; i < nProcuders ; i++) {
+		for(int i=0 ; i < nProducers ; i++) {
 			String name = "P" + (i+1);
 			producer[i] = new Producer(name);
 			System.out.println("Starting Producer-" + name);
@@ -53,22 +53,22 @@ public class MultiThread {
 	}
 	
 	void runProducerConsumerLimited() {
-		Thread[] producer, consumer;
-		int nProcuders, nConsumers, nJob;
+		Producer[] producer;
+		Consumer[] consumer;
+		int nProducers, nConsumers, nJob;
+		String choice;
 		
 		System.out.print("Enter number of Producers: ");
-		nProcuders = getInputInt();
-		System.out.print("Enter number of jobs per Producer: ");
-		nJob = getInputInt();
+		nProducers = getInputInt();
 		System.out.print("Enter number of Consumers: ");
 		nConsumers = getInputInt();
 		
-		producer = new Thread[nProcuders];
-		consumer = new Thread[nConsumers];
+		producer = new Producer[nProducers];
+		consumer = new Consumer[nConsumers];
 		// Creating Producers
-		for(int i=0 ; i < nProcuders ; i++) {
+		for(int i=0 ; i < nProducers ; i++) {
 			String name = "P" + (i+1);
-			producer[i] = new Producer(name, nJob);
+			producer[i] = new Producer(name);
 			System.out.println("Starting Producer-" + name);
 			producer[i].start();
 		}
@@ -78,15 +78,41 @@ public class MultiThread {
 			System.out.println("Starting Consumer-" + name);
 			consumer[i].start();
 		}
-		try {
-			Thread.sleep(5000);
-		}
-		catch(InterruptedException eIE) {}
 		
+		do {
+			System.out.print("Enter number of jobs per Producer (0-infinite): ");
+			nJob = getInputInt();
+			
+			for(int i = 0 ; i < nProducers ; i++) {
+				producer[i].setJobCount(nJob);
+			}
+			
+			// Wait till all items have been produced
+			while(true) {
+				boolean stillProducing = false;
+				for(int i=0 ; i<nProducers ; i++) {
+					stillProducing = stillProducing || producer[i].isWorking();
+					if(stillProducing)
+						break;
+				}
+				if(!stillProducing)
+					break;
+			}
+			
+			System.out.print("Do you wish to produce more items? ('y/Y'-yes; 'any other'-no) : ");
+			choice = getInputStr();
+		}while(choice.equals("y") || choice.equals("Y"));
+		
+		// Check to kill Consumers if all Producers have been terminated
 		while(true) {
 			boolean stillProducing = false;
-			for(int i=0 ; i<nProcuders ; i++)
+			for(int i=0 ; i<nProducers ; i++) {
+				if(!producer[i].isWorking())
+					producer[i].interrupt();
 				stillProducing = stillProducing || (producer[i].getState() != Thread.State.TERMINATED);
+				if(stillProducing)
+					break;
+			}
 			if(!stillProducing) {
 				for(int i=0 ; i<nConsumers ; i++)
 					consumer[i].interrupt();
