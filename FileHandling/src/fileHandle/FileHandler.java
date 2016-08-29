@@ -38,7 +38,7 @@ public class FileHandler {
 		filePath = Paths.get(fileDir + "/" + name);
 		
 		try {
-			writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filePath.toString()), StandardCharsets.UTF_8));
+			writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filePath.toString(), true), StandardCharsets.UTF_8));
 			isFileOpen = false;
 		} catch (FileNotFoundException e) {
 			System.out.println("Could not open file: " + filePath);

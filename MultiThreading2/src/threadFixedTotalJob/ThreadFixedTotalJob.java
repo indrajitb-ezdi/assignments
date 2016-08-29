@@ -8,11 +8,13 @@ import java.io.InputStreamReader;
 public class ThreadFixedTotalJob {
 
 	public static void main(String[] args) {
+		Logger logger = Logger.getInstance("ProCon");
 		ThreadFixedTotalJob obj = new ThreadFixedTotalJob();
-		obj.runPC();
+		obj.runPC(logger);
+		logger.close();
 	}
 	
-	void runPC() {
+	void runPC(Logger logger) {
 		Producer[] producer;
 		Consumer[] consumer;
 		int nProducers, nConsumers, nJob;
@@ -28,20 +30,23 @@ public class ThreadFixedTotalJob {
 		// Creating Producers
 		for(int i=0 ; i < nProducers ; i++) {
 			String name = "P" + (i+1);
-			producer[i] = new Producer(name);
+			producer[i] = new Producer(name, logger);
 			System.out.println("Starting Producer-" + name);
+			logger.write("Starting Producer-" + name);
 			producer[i].start();
 		}
 		for(int i=0 ; i < nConsumers ; i++) {
 			String name = "C" + (i+1);
-			consumer[i] = new Consumer(name);
+			consumer[i] = new Consumer(name, logger);
 			System.out.println("Starting Consumer-" + name);
+			logger.write("Starting Consumer-" + name);
 			consumer[i].start();
 		}
 		
 		do {
 			System.out.print("Enter number of jobs to produce: ");
 			nJob = getInputInt();
+			logger.write("Number of jobs: " + nJob);
 			
 			PCBuffer.getInstance().setJobCount(nJob);
 			
@@ -53,6 +58,25 @@ public class ThreadFixedTotalJob {
 			producer[i].interrupt();
 		for(int i = 0 ; i < nConsumers ; i++)
 			consumer[i].interrupt();
+		
+		// Waiting for spawned threads to complete
+		boolean wait = false;
+		do {
+			for(int i = 0 ; i < nProducers ; i++) {
+				if(producer[i].getState() != Thread.State.TERMINATED) {
+					wait = true;
+					break;
+				}
+			}
+			if(!wait) {
+				for(int i = 0 ; i < nConsumers ; i++) {
+					if(consumer[i].getState() != Thread.State.TERMINATED) {
+						wait = true;
+						break;
+					}
+				}
+			}
+		}while(wait);
 	}
 	
 	//Function to read string format input
