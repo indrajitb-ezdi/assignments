@@ -42,7 +42,7 @@ class PCBuffer {
 	public int removeItem() throws InterruptedException {
 		int item = 0;
 		item = pc.buffer.take();		// Blocks calling thread if buffer is empty
-		System.out.println("Taken from buffer: " + item);
+//		System.out.println("Taken from buffer: " + item);
 		return item;
 	}
 }
@@ -60,7 +60,6 @@ class Producer extends Thread {
 	@Override
 	public void run() {		
 		while(!Thread.currentThread().isInterrupted()){
-			synchronized(this) {
 			if(pcBuffer.jobsRemaining()) {
 				try {
 					generateAndAddItem();
@@ -74,7 +73,6 @@ class Producer extends Thread {
 					logger.write("Buffer loading interrupted");
 				}
 			}
-			}
 		}
 		System.out.println("Producer-" + this.getName() + " stopped");
 		logger.write("Producer-" + this.getName() + " stopped");
@@ -83,7 +81,7 @@ class Producer extends Thread {
 	void generateAndAddItem() throws JobsCompletedException, InterruptedException {
 		int item;
 		item = nextItem();
-		System.out.println(this.getName() + " generated " + item);
+//		System.out.println(this.getName() + " generated " + item);
 		pcBuffer.addItem(item);
 		System.out.println("Producer-" + this.getName() + " added item#" + item + " to queue");
 		logger.write("Producer-" + this.getName() + " added item#" + item + " to queue");
@@ -91,7 +89,7 @@ class Producer extends Thread {
 	
 	int nextItem() {
 		int val = (int) (Math.random() * 5 + 1);
-		System.out.println("Randomly generated: " + val);
+//		System.out.println("Randomly generated: " + val);
 		return val;	// Returns a random integer in range [1,6)
 	}
 }
@@ -111,12 +109,10 @@ class Consumer extends Thread {
 		int item;
 		try {
 			while(!Thread.currentThread().isInterrupted()) {
-				synchronized(this) {
 				// Retrieve an item from the buffer
 				item = pcBuffer.removeItem();
 				System.out.println("Consumer-" + this.getName() + " consumed item#" + item);
 				logger.write("Consumer-" + this.getName() + " consumed item#" + item);
-				}
 			}
 			System.out.println("Consumer-" + this.getName() + " stopped");
 			logger.write("Consumer-" + this.getName() + " stopped");

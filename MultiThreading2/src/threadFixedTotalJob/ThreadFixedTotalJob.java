@@ -62,6 +62,7 @@ public class ThreadFixedTotalJob {
 		// Waiting for spawned threads to complete
 		boolean wait = false;
 		do {
+			wait = false;
 			for(int i = 0 ; i < nProducers ; i++) {
 				if(producer[i].getState() != Thread.State.TERMINATED) {
 					wait = true;
