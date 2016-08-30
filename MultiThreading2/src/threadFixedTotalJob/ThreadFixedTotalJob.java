@@ -44,6 +44,7 @@ public class ThreadFixedTotalJob {
 		}
 		
 		do {
+			logger.reset();
 			System.out.print("Enter number of jobs to produce: ");
 			nJob = getInputInt();
 			logger.write("Number of jobs: " + nJob);
@@ -53,6 +54,7 @@ public class ThreadFixedTotalJob {
 			System.out.print("Do you wish to produce more items? ('y/Y'-yes; 'any other'-no) : ");
 			choice = getInputStr();
 		}while(choice.equals("y") || choice.equals("Y"));
+		logger.reset();
 		
 		for(int i = 0 ; i < nProducers ; i++)
 			producer[i].interrupt();
