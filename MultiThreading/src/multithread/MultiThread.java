@@ -99,6 +99,11 @@ public class MultiThread {
 					break;
 			}
 			
+			for(int i=0 ; i<nConsumers ; i++) {
+				consumer[i].displayStat();
+				consumer[i].resetStat();
+			}
+			
 			System.out.print("Do you wish to produce more items? ('y/Y'-yes; 'any other'-no) : ");
 			choice = getInputStr();
 		}while(choice.equals("y") || choice.equals("Y"));

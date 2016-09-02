@@ -51,6 +51,23 @@ public class ThreadFixedTotalJob {
 			
 			PCBuffer.getInstance().setJobCount(nJob);
 			
+			while(PCBuffer.getInstance().jobsRemaining()) {
+				System.out.println(PCBuffer.getInstance().getJobCount());
+			}
+
+			for(int i = 0 ; i < nProducers ; i++) {
+				while(producer[i].isWorking());
+				producer[i].displayStat();
+				producer[i].resetStat();
+			}
+			System.out.println("All producers done");
+			for(int i = 0 ; i < nConsumers ; i++) {
+				while(consumer[i].getState() == Thread.State.RUNNABLE);
+				consumer[i].displayStat();
+				consumer[i].resetStat();
+			}
+			System.out.println("All consumers done");
+			
 			System.out.print("Do you wish to produce more items? ('y/Y'-yes; 'any other'-no) : ");
 			choice = getInputStr();
 		}while(choice.equals("y") || choice.equals("Y"));
@@ -60,6 +77,7 @@ public class ThreadFixedTotalJob {
 			producer[i].interrupt();
 		for(int i = 0 ; i < nConsumers ; i++)
 			consumer[i].interrupt();
+		
 		
 		// Waiting for spawned threads to complete
 		boolean wait = false;

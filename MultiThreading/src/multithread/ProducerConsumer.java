@@ -149,7 +149,7 @@ class Producer extends Thread {
 		item = nextItem();
 		pcBuffer.addItem(item);
 		nJobCompleted++;
-		System.out.println("Producer-" + this.getName() + " added item#" + item + " to queue");
+		//System.out.println("Producer-" + this.getName() + " added item#" + item + " to queue");
 	}
 	
 	int nextItem() {
@@ -161,9 +161,11 @@ class Producer extends Thread {
 class Consumer extends Thread {
 //	ProducerConsumer pcBuffer = ProducerConsumer.getInstance();
 	ProducerConsumerList pcBuffer = ProducerConsumerList.getInstance();
+	int jobCount;
 	
 	public Consumer(String name) {
 		this.setName(name);
+		jobCount = 0;
 	}
 	
 	public void run() {
@@ -173,7 +175,8 @@ class Consumer extends Thread {
 				// Retrieve an item from the buffer
 				//System.out.println("Consumer-" + this.getName() + " attempting to consume item from queue");
 				item = pcBuffer.removeItem();
-				System.out.println("Consumer-" + this.getName() + " consumed item#" + item);
+				//System.out.println("Consumer-" + this.getName() + " consumed item#" + item);
+				jobCount++;
 				// Thread.sleep(item * 1000);	// Wait for 'item' seconds
 			}
 		}
@@ -183,6 +186,14 @@ class Consumer extends Thread {
 		finally {
 			System.out.println("Consumer-" + this.getName() + " stopped");
 		}
+	}
+	
+	public void displayStat() {
+		System.out.println("Consumer " + this.getName() + " consumed " + jobCount + " jobs");
+	}
+	
+	public void resetStat() {
+		jobCount = 0;
 	}
 }
 

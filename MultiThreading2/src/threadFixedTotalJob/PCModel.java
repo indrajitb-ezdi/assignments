@@ -6,7 +6,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 class PCBuffer {
 	private static PCBuffer pc = new PCBuffer();
 	private LinkedBlockingQueue<Integer> buffer;
-	private int nJobs;
+	private volatile int nJobs;
 	
 	private PCBuffer() {
 		buffer = new LinkedBlockingQueue<Integer>();
@@ -18,6 +18,10 @@ class PCBuffer {
 	
 	public void setJobCount(int count) {
 		pc.nJobs = count;
+	}
+	
+	public int getJobCount() {
+		return nJobs;
 	}
 	
 	public boolean jobsRemaining() {
@@ -51,30 +55,38 @@ class PCBuffer {
 class Producer extends Thread {
 	PCBuffer pcBuffer = PCBuffer.getInstance();
 	Logger logger;
+	int jobCount;
+	boolean working;
 	
 	public Producer(String name, Logger logObj) {
 		this.setName(name);
 		logger = logObj;
+		jobCount = 0;
+		working = false;
 	}
 		
 	@Override
 	public void run() {		
 		while(!Thread.currentThread().isInterrupted()){
 			if(pcBuffer.jobsRemaining()) {
+				working = true;
 				try {
 					generateAndAddItem();
+					jobCount++;
 				}
 				catch (JobsCompletedException eJobs) {
-					System.out.println("No more jobs to produce");
+//					System.out.println("No more jobs to produce");
 					logger.write("No more jobs to produce");
 				}
 				catch(InterruptedException eIE) {
-					System.out.println("Buffer loading interrupted");
+//					System.out.println("Buffer loading interrupted");
 					logger.write("Buffer loading interrupted");
 				}
 			}
+			else
+				working = false;
 		}
-		System.out.println("Producer-" + this.getName() + " stopped");
+//		System.out.println("Producer-" + this.getName() + " stopped");
 		logger.write("Producer-" + this.getName() + " stopped");
 	}
 	
@@ -83,7 +95,7 @@ class Producer extends Thread {
 		item = nextItem();
 //		System.out.println(this.getName() + " generated " + item);
 		pcBuffer.addItem(item);
-		System.out.println("Producer-" + this.getName() + " added item#" + item + " to queue");
+//		System.out.println("Producer-" + this.getName() + " added item#" + item + " to queue");
 		logger.write("Producer-" + this.getName() + " added item#" + item + " to queue");
 	}
 	
@@ -92,16 +104,29 @@ class Producer extends Thread {
 //		System.out.println("Randomly generated: " + val);
 		return val;	// Returns a random integer in range [1,6)
 	}
+	
+	public void displayStat() {
+		logger.write("Producer " + this.getName() + " produced " + jobCount + " jobs");
+	}
+	
+	public void resetStat() {
+		jobCount = 0;
+	}
+	public boolean isWorking() {
+		return working;
+	}
 }
 
 //Class to implement Consumer 
 class Consumer extends Thread {
 	PCBuffer pcBuffer = PCBuffer.getInstance();
 	Logger logger;
+	int jobCount;
 	
 	public Consumer(String name, Logger logObj) {
 		this.setName(name);
 		logger = logObj;
+		jobCount = 0;
 	}
 	
 	@Override
@@ -111,16 +136,25 @@ class Consumer extends Thread {
 			while(!Thread.currentThread().isInterrupted()) {
 				// Retrieve an item from the buffer
 				item = pcBuffer.removeItem();
-				System.out.println("Consumer-" + this.getName() + " consumed item#" + item);
+				jobCount++;
+//				System.out.println("Consumer-" + this.getName() + " consumed item#" + item);
 				logger.write("Consumer-" + this.getName() + " consumed item#" + item);
 			}
-			System.out.println("Consumer-" + this.getName() + " stopped");
+//			System.out.println("Consumer-" + this.getName() + " stopped");
 			logger.write("Consumer-" + this.getName() + " stopped");
 		}
 		catch(InterruptedException eIE) {
-			System.out.println("Terminated " + this.getName() + "!");
+//			System.out.println("Terminated " + this.getName() + "!");
 			logger.write("Terminated " + this.getName() + "!");
 		}
+	}
+	
+	public void displayStat() {
+		logger.write("Consumer " + this.getName() + " consumed " + jobCount + " jobs");
+	}
+	
+	public void resetStat() {
+		jobCount = 0;
 	}
 }
 
