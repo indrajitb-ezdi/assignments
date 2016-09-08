@@ -4,11 +4,70 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+
 public class MultiThread {
 
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
+		// Call appropriate function
+		MultiThread obj = new MultiThread();
+		obj.runProducerConsumerLimited();
+	}
+	
+	void runProducerConsumerLimited() {
+		int nProducers, nConsumers, nJob;
+		String choice;
+		
+		System.out.print("Enter number of Producers: ");
+		nProducers = getInputInt();
+		System.out.print("Enter number of Consumers: ");
+		nConsumers = getInputInt();
+		
+//		PCBuffer.getInstance().setCapacity(5);		// Testing: Buffer capacity limited to 5
+		
+		do {
+			Producer[] producer = new Producer[nProducers];
+			Consumer[] consumer = new Consumer[nConsumers];
 
+			System.out.print("Enter number of jobs per Producer (0-infinite): ");
+			nJob = getInputInt();
+			
+			// Starting producer and consumer instances
+			Producer.setProducerCount(nProducers);
+			for(int i = 0 ; i < nProducers ; i++) {
+				String name = "P" + (i+1);
+				producer[i] = new Producer(name);
+				producer[i].setJobCount(nJob);
+				System.out.println("Starting Producer-" + name);
+				producer[i].start();
+			}
+			for(int i=0 ; i < nConsumers ; i++) {
+				String name = "C" + (i+1);
+				consumer[i] = new Consumer(name);
+				System.out.println("Starting Consumer-" + name);
+				consumer[i].start();
+			}
+			
+			// Wait until all items have been produced
+			for(int i = 0 ; i < nProducers ; i++) {
+				try {
+					producer[i].join();
+				}
+				catch(InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+			
+			// Wait until all items have been consumed
+			while(Consumer.workInProgress());
+ 			
+			for(int i=0 ; i < nConsumers ; i++)
+				consumer[i].interrupt();
+			for(int i = 0 ; i < nConsumers ; i++)
+				while(consumer[i].getState() != Thread.State.TERMINATED);
+			
+			System.out.print("Do you wish to produce more items? ('y/Y'-yes; 'any other'-no) : ");
+			choice = getInputStr();
+		}while(choice.equals("y") || choice.equals("Y"));
 	}
 
 	//Function to read string format input
