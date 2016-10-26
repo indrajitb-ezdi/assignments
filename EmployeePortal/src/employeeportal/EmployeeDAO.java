@@ -35,6 +35,7 @@ public class EmployeeDAO {
 	
 	/* Method to CREATE an employee in the database */
 	public Integer addEmployee(String fname, String lname, int salary){
+		factory = getFactory();
 	    Session session = factory.openSession();
 	    Transaction tx = null;
 	    Integer employeeID = null;
@@ -55,6 +56,7 @@ public class EmployeeDAO {
 	/* Method to  READ all the employees */
 //	@SuppressWarnings("unchecked")
 	public List<Employee> listEmployees(){
+		factory = getFactory();
 		Session session = factory.openSession();
 	    Transaction tx = null;
 	    List<Employee> employees = null;
@@ -78,27 +80,54 @@ public class EmployeeDAO {
 	    return employees;
 	}
 	
+	/* Method to retrieve single employee */
+	public Employee getEmployee(int empId) {
+		factory = getFactory();
+		Session session = factory.openSession();
+	    Transaction tx = null;
+	    Employee employee = null;
+	    try {
+	    	tx = session.beginTransaction();
+	    	employee = (Employee) session.createQuery("FROM Employee where id = " + empId).list().get(0);
+	    	tx.commit();
+	    }
+	    catch(HibernateException e) {
+	        if (tx!=null) tx.rollback();
+	        e.printStackTrace(); 
+	    }
+	    finally {
+	        session.close(); 
+	    }
+	    return employee;
+	}
+	
 	/* Method to UPDATE salary for an employee */
-	public void updateEmployee(Integer EmployeeID, int salary ){
+	public boolean updateEmployee(Integer EmployeeID, String firstName, String lastName, int salary ){
+		boolean status = false;
 		Session session = factory.openSession();
 	    Transaction tx = null;
 	    try{
 	        tx = session.beginTransaction();
 	        Employee employee = 
 	                    (Employee)session.get(Employee.class, EmployeeID); 
-	        employee.setSalary( salary );
+	        employee.setFirstName(firstName);
+	        employee.setLastName(lastName);
+	        employee.setSalary(salary);
 			session.update(employee); 
 	        tx.commit();
+	        status = true;
 	    }catch (HibernateException e) {
 	        if (tx!=null) tx.rollback();
 	        e.printStackTrace(); 
 	    }finally {
 	        session.close(); 
 	    }
+	    return status;
 	}
 	
 	/* Method to DELETE an employee from the records */
-	public void deleteEmployee(Integer EmployeeID){
+	public boolean deleteEmployee(Integer EmployeeID) {
+		boolean status = false;
 		Session session = factory.openSession();
 	    Transaction tx = null;
 	    try{
@@ -107,11 +136,13 @@ public class EmployeeDAO {
 	                   (Employee)session.get(Employee.class, EmployeeID); 
 	        session.delete(employee); 
 	        tx.commit();
+	        status = true;
 	    }catch (HibernateException e) {
 	        if (tx!=null) tx.rollback();
 	        e.printStackTrace(); 
 	    }finally {
 	        session.close(); 
 	    }
+	    return status;
 	}
 }
