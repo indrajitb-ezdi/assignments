@@ -21,7 +21,7 @@ public class Controller {
 	@Autowired
 	private EmployeeDAO employeeDAO;
 	
-//	@RequestMapping(method = RequestMethod.GET, value="/employees")
+	//@RequestMapping(method = RequestMethod.GET, value="/employees")
 	@GetMapping("/employees")
 	public List<Employee> getEmployees() {
 		return employeeDAO.listEmployees();
