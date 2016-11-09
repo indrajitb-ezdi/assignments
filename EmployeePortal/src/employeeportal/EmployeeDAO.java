@@ -103,6 +103,7 @@ public class EmployeeDAO {
 	
 	/* Method to UPDATE salary for an employee */
 	public boolean updateEmployee(Integer EmployeeID, String firstName, String lastName, int salary ){
+		factory = getFactory();
 		boolean status = false;
 		Session session = factory.openSession();
 	    Transaction tx = null;
@@ -127,6 +128,7 @@ public class EmployeeDAO {
 	
 	/* Method to DELETE an employee from the records */
 	public boolean deleteEmployee(Integer EmployeeID) {
+		factory = getFactory();
 		boolean status = false;
 		Session session = factory.openSession();
 	    Transaction tx = null;

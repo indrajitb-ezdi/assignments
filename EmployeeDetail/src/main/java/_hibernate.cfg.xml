@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<hibernate-configuration>
+
+	<session-factory>
+
+		<property name="hibernate.connection.driver_class">com.mysql.jdbc.Driver</property>
+		<property name="hibernate.connection.password">myuser@123</property>
+		<property name="hibernate.connection.url">jdbc:mysql://localhost:3306/testdb</property>
+		<property name="hibernate.connection.username">myuser</property>
+		<property name="hibernate.dialect">org.hibernate.dialect.MySQLDialect</property>
+		
+		<!-- <property name="show_sql">true</property>
+		<property name="format_sql">true</property>
+		<property name="use_sql_comments">true</property> -->
+
+		<!-- <mapping class="demo.mvc.Employee" /> -->
+	</session-factory>
+
+</hibernate-configuration>
+
