@@ -2,7 +2,10 @@ package demo.mvc;
 ///boohaa
 import java.util.List;
 
+import javax.servlet.http.HttpSession;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -71,4 +74,10 @@ public class Controller {
 			return new ResponseEntity<String>("Employee detail could not be deleted for id = " + id, 
 					HttpStatus.INTERNAL_SERVER_ERROR);
 	}
+	
+	/*@PostMapping("/_logout")
+	public ResponseEntity<String> logout(HttpSession session) {
+		session.invalidate();
+		return new ResponseEntity<String>("User successfully logged out!", HttpStatus.OK);
+	}*/
 }
