@@ -16,8 +16,8 @@ public class HttpSessionConfig {
 		return new JedisConnectionFactory();
 	}
 	
-	@Bean
+	/*@Bean
 	public HttpSessionStrategy httpSessionStrategy() {
 		return new HeaderHttpSessionStrategy();
-	}
+	}*/
 }

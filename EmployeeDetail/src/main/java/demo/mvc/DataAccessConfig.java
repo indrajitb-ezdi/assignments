@@ -21,8 +21,9 @@ import org.springframework.orm.hibernate5.LocalSessionFactoryBuilder;
 @EnableWebMvc
 @ComponentScan("demo.mvc")
 public class DataAccessConfig {
-	private String dbPropertiesFile = "/home/local/EZDI/indrajit.b/Workspace/git/assignments/EmployeeDetail/src/main/"
-			+ "resources/database.properties"; 
+	/*private String dbPropertiesFile = "/home/local/EZDI/indrajit.b/Workspace/git/assignments/EmployeeDetail/src/main/"
+			+ "resources/database.properties";*/ 
+	private String dbPropertiesFile = "/database.properties";
 	private Properties properties = null;
 
 	@Autowired
@@ -54,8 +55,8 @@ public class DataAccessConfig {
 		Properties properties = new Properties();
 		InputStream input = null;
 		try {
-			input = new FileInputStream(dbPropertiesFile);
-//			input = getClass().getResourceAsStream(dbPropertiesFile);
+//			input = new FileInputStream(dbPropertiesFile);
+			input = DataAccessConfig.class.getResourceAsStream(dbPropertiesFile);
 			properties.load(input);
 		}
 		catch(IOException e) {

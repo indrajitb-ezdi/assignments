@@ -2,12 +2,18 @@ package demo.mvc;
 
 import java.util.List;
 
+import javax.servlet.http.HttpSession;
+
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 @Component
 public class EmployeeDAO {
@@ -94,6 +100,10 @@ public class EmployeeDAO {
 		} finally {
 			session.close();
 		}
+		
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		System.out.println("User :" + auth.getName());
+		
 		return employees;
 	}
 

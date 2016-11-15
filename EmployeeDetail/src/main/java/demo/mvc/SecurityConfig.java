@@ -60,6 +60,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				.antMatchers(HttpMethod.GET, "/employees/**").access("hasRole('ADMIN') or hasRole('USER')")
 				.anyRequest().authenticated()
 			.and()
-				.formLogin();
+				.formLogin()
+			.and()
+				.logout().invalidateHttpSession(true);
 	}
 }
